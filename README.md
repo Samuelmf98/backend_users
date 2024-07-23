@@ -1,0 +1,1 @@
+Este proyecto tiene el objetivo de crear un backend usando Python y Flask para gestionar los clientes, compras y productos haciendo uso de las diferentes operaciones CRUD a través de los diferentes endpoints desarrollados. Para la base de datos se hace uso de SQLite y del ORM SQLAlchemy.
