@@ -27,7 +27,7 @@ def create_app():
     NAME = os.getenv("DATABASE_NAME")
     if not os.path.exists(f"{PATH}{NAME}"):
         os.chdir(f"{PATH}")
-        file = os.open(f"{NAME}", os.O_CREAT) #si no existe que cree el archivo y luego lo podemos arbrir con Dbeaver
+        file = os.open(f"{NAME}", os.O_CREAT) #si no existe que cree el archivo y luego lo podemos abrir con Dbeaver
 
     #Para que la base de datos registre en todo momento los cambios que se hacen
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False 
