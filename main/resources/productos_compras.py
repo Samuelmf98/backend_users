@@ -27,9 +27,24 @@ class ProductosCompras(Resource):
             return make_response(jsonify({"error": f"Error al insertar datos porque el id {prodcompras.productoId} no existe en la tabla productos"}))
     
     def get(self):
-        prodcompras = db.session.query(ProductoCompramodel).all()
+        page = 1
+        per_page = 5
+        prodcompras = db.session.query(ProductoCompramodel)
+    
+        json_data = request.get_json()
+        if json_data:
+            for key, value in json_data.items():
+                if key == "page":
+                    page = int(value)
+                elif key == "per_page":
+                    per_page = int(value)
+
+        prodcompras = prodcompras.paginate(page, per_page, True, 15)
         return jsonify({
-            "prodcompras": [prodcompra.to_json() for prodcompra in prodcompras]
+            "prodcompras": [prodcompra.to_json() for prodcompra in prodcompras.items],
+            "total": prodcompras.total,
+            "pages": prodcompras.pages,
+            "page": page
             })
 
 class ProductoCompra(Resource):
@@ -43,7 +58,7 @@ class ProductoCompra(Resource):
     def put(self, id):
         prodcompras = db.session.query(ProductoCompramodel).get_or_404(id)
 
-        prod_compras_exist = ProductoCompramodel.from_json(request.get_json())
+        prod_compras_exist = ProductoCompramodel.from_json(request.get_json()) #Este es el json que le pasas en postman
         compras_exist = db.session.query(Compramodel).filter(Compramodel.id == prod_compras_exist.compraId).first()
         productos_exist = db.session.query(Productomodel).filter(Productomodel.id == prod_compras_exist.productoId).first()
 

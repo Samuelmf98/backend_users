@@ -18,9 +18,25 @@ class Compras(Resource):
             return make_response(jsonify({"error:": f"No se puede añadir la compra porque el usuario {compras.usuarioId} no existe"}))
 
     def get(self):
-        compras = db.session.query(Compramodel).all()
+        page = 1
+        per_page = 5
+        compras = db.session.query(Compramodel)
+
+        json_data =  request.get_json()
+        if json_data:
+            for key, value in json_data.items():
+                if key == "page":
+                    page = int(value)
+                elif key == "per_page":
+                    per_page = int(value)
+        compras = compras.paginate(page, per_page, True, 15)
+
+
         return jsonify({
-            "compras": [compra.to_json() for compra in compras]
+            "compras": [compra.to_json() for compra in compras.items],
+            "total": compras.total,
+            "pages": compras.pages,
+            "page": page
         })
     
 class Compra(Resource):
@@ -42,7 +58,7 @@ class Compra(Resource):
         print(f"Esta es la compra {compra}")
 
         #Comprobar que el id_usuario de compras existe en usuario
-        compra_exist = Compramodel.from_json(request.get_json())
+        compra_exist = Compramodel.from_json(request.get_json()) #Este es el json que le pasas en postman
 
 
         usuario_exist = db.session.query(Usuariomodel).filter(Usuariomodel.id == compra_exist.usuarioId).first()

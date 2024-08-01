@@ -11,13 +11,27 @@ class Productos(Resource):
         return producto.to_json(), 201
     
     def get(self):
-        productos = db.session.query(Productomodel).all()
+        page = 1
+        per_page = 5 #Cuantos elementos por pagina
+        productos = db.session.query(Productomodel)
+
+        json_data = request.get_json()
+        if json_data:
+            for key, value in json_data.items():
+                if key == "page":
+                    page = int(value)
+                elif key == "per_page":
+                    per_page = int(value)
+
+        productos = productos.paginate(page, per_page, True, 15)
 
         return jsonify({
-
-            "productos": [producto.to_json() for producto in productos]
+            "productos": [producto.to_json() for producto in productos.items],
+            "total": productos.total,
+            "pages": productos.pages,
+            "page": page
         })
-     
+        
       
 
 class Producto(Resource):
