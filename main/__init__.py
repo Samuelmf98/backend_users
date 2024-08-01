@@ -3,11 +3,13 @@ from dotenv import load_dotenv #variables de entorno
 from flask import Flask
 from flask_restful import Api #para crear la api-rest
 from flask_sqlalchemy import SQLAlchemy
-
+from flask_jwt_extended import JWTManager
 
 api = Api()
 
 db = SQLAlchemy()
+
+jwt = JWTManager()
 
 
 def create_app():
@@ -38,6 +40,8 @@ def create_app():
 
 
     import main.resources as resources
+    api.add_resource(resources.ClientesResource, '/clientes')
+    api.add_resource(resources.ClienteResource, '/cliente/<id>')
     api.add_resource(resources.UsuariosResource, "/usuarios")
     api.add_resource(resources.UsuarioResource, "/usuario/<id>")
     api.add_resource(resources.ComprasResource, "/compras")
@@ -49,4 +53,11 @@ def create_app():
 
     api.init_app(app)
 
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES"))
+
+    from main.auth import routes
+    app.register_blueprint(auth.routes.auth)
+
+    jwt.init_app(app)
     return app
