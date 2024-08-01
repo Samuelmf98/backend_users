@@ -21,14 +21,14 @@ class Compras(Resource):
         page = 1
         per_page = 5
         compras = db.session.query(Compramodel)
-
-        json_data =  request.get_json()
-        if json_data:
-            for key, value in json_data.items():
-                if key == "page":
-                    page = int(value)
-                elif key == "per_page":
-                    per_page = int(value)
+        if request.content_type == 'application/json':
+            json_data =  request.get_json()
+            if json_data:
+                for key, value in json_data.items():
+                    if key == "page":
+                        page = int(value)
+                    elif key == "per_page":
+                        per_page = int(value)
         compras = compras.paginate(page, per_page, True, 15)
 
 
