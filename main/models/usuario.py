@@ -1,6 +1,6 @@
 from .. import db
 import datetime as dt
-
+from werkzeug.security import generate_password_hash, check_password_hash
 class Usuario(db.Model): #para crear una tabla
 
     id = db.Column(db.Integer, primary_key = True)
@@ -9,9 +9,22 @@ class Usuario(db.Model): #para crear una tabla
     email = db.Column(db.String(60), nullable = False, unique = True, index = True)
     role = db.Column(db.String(45), nullable = False, default = "cliente")
     telefono = db.Column(db.Integer, nullable = False)
+    contraseña = db.Column(db.String(100), nullable = False)
     fecha_registro = db.Column(db.DateTime, default = dt.datetime.now(), nullable = False)
     compras = db.relationship("Compra", back_populates = "usuario", cascade = "all, delete-orphan")
     #Este ultimo argumento de all, delete-orphan significa que si eliminamos a un usuario tambien se eliminen todas sus compras
+
+    #Esto lanza un error si intentas leer la contraseña
+    @property
+    def plain_password(self):
+        raise AttributeError("La contraseña no pudo ser leída")
+    
+    @plain_password.setter
+    def plain_password(self, contraseña):
+        self.contraseña = generate_password_hash(contraseña)
+    
+    def validate_password(self, contraseña):
+        return check_password_hash(self.contraseña, contraseña)
 
 
 
@@ -44,6 +57,7 @@ class Usuario(db.Model): #para crear una tabla
         apellido = usuario_json.get("apellido")
         email = usuario_json.get("email")
         telefono = usuario_json.get("telefono")
+        contraseña = usuario_json.get("contraseña")
         role = usuario_json.get("role")
         fecha_registro = usuario_json.get("fecha_registro")
 
@@ -55,6 +69,7 @@ class Usuario(db.Model): #para crear una tabla
             apellido = apellido,
             email = email,
             telefono = telefono,
+            plain_password = contraseña,
             role = role,
             fecha_registro = fecha_registro
         )
