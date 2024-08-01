@@ -5,3 +5,5 @@ flask_sqlalchemy==2.5.1
 flask-jwt-extended
 flask-mail
 SQLAlchemy==1.4.23
+flask-cors
+flask-login
